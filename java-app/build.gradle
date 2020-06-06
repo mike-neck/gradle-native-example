@@ -1,0 +1,60 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    implementation 'net.moznion:gimei:1.3.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
+}
+
+application {
+    mainClass = 'com.example.App'
+    applicationDefaultJvmArgs = [
+            "-Djava.library.path=$buildDir/cpp-lib/",
+            "-agentlib:native-image-agent=config-output-dir=$buildDir/native-image-config"
+    ]
+}
+
+class PrepareExecution extends DefaultTask {
+
+    @OutputDirectory
+    DirectoryProperty targetDirectory = project.objects.directoryProperty()
+
+    @TaskAction
+    void run() {
+        def target = targetDirectory.get().asFile
+        if (!target.exists()) {
+            target.mkdirs()
+        }
+    }
+}
+
+task prepareExecution(type: PrepareExecution) {
+    targetDirectory.set(file("$buildDir/native-image-config"))
+}
+
+task copyLib(type: Copy) {
+    from project(':cpp-lib').tasks.withType(LinkSharedLibrary).named('linkRelease')
+    into "$buildDir/cpp-lib"
+}
+
+run.dependsOn 'copyLib', 'prepareExecution'
+
+task testPrepareExecution(type: PrepareExecution) {
+    targetDirectory.set(project.file("$buildDir/native-image-test-config"))
+}
+
+test {
+    dependsOn 'copyLib'
+    useJUnitPlatform()
+    jvmArgs(
+            "-Djava.library.path=$buildDir/cpp-lib/",
+            "-agentlib:native-image-agent=config-output-dir=$buildDir/native-image-test-config"
+    )
+}

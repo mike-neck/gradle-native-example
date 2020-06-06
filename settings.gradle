@@ -1,0 +1,3 @@
+rootProject.name = 'gradle-native-example'
+
+include 'java-app', 'cpp-lib'

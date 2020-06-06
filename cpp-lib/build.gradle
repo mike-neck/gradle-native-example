@@ -1,0 +1,45 @@
+import static org.apache.tools.ant.taskdefs.condition.Os.*
+
+plugins {
+    id 'cpp-library'
+}
+
+ext {
+    include = "${System.getProperty('java.home')}/include"
+}
+
+library {
+    def javaProject = project(':java-app')
+    targetMachines.add(machines.macOS.x86_64)
+    publicHeaders.from(javaProject.file("${javaProject.buildDir}/generated/sources/headers/java/main"))
+}
+
+tasks.withType(CppCompile).configureEach {
+    dependsOn ':java-app:classes'
+    compilerArgs.addAll targetPlatform.map { platform ->
+        def os = platform.operatingSystem
+        if (os.isMacOsX()) {
+            ["-I$include", "-I$include/darwin"]
+        } else if (os.isLinux()) {
+            ["-I$include", "-I$include/linux"]
+        } else if (os.isWindows()) {
+            ["-I$include", "-I$include/windows"]
+        } else {
+            ["-I$include"]
+        }
+    }
+}
+
+task showDisplayName {
+    doLast {
+        tasks.withType(CppCompile).each {
+            def chain = it.toolChain.get()
+            println chain.displayName
+            println chain.name
+            println chain.class
+            def platform = it.targetPlatform.get()
+            println "OS: ${platform.operatingSystem}"
+            println "Arch: ${platform.architecture}"
+        }
+    }
+}
