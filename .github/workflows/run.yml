@@ -40,6 +40,9 @@ jobs:
           key: gradle-${{ hashFiles('**/*.gradle') }}-${{ hashFiles('**/gradle-wrapper.properties') }}
           restore-keys: gradle-
 
+      - name: show all task
+        run: ./gradlew tasks --all
+
       - name: run application
         run: ./gradlew run
 
