@@ -8,7 +8,7 @@ ext {
 
 library {
     def javaProject = project(':java-app')
-    targetMachines.add(machines.macOS.x86_64)
+    targetMachines.add(machines.host())
     publicHeaders.from(javaProject.file("${javaProject.buildDir}/generated/sources/headers/java/main"))
 }
 

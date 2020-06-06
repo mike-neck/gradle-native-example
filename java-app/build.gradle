@@ -42,11 +42,7 @@ task prepareExecution(type: PrepareExecution) {
 task copyLib(type: Copy) {
     def cppLib = project(':cpp-lib')
     def linkTask = cppLib.tasks.withType(LinkSharedLibrary).findByName('linkRelease')
-    if (linkTask == null) {
-        from cppLib.file("${cppLib.buildDir}/lib/main/release")
-    } else {
-        from linkTask
-    }
+    from linkTask
     into "$buildDir/cpp-lib"
 }
 
