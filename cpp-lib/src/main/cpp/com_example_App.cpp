@@ -9,7 +9,7 @@ JNIEXPORT jstring JNICALL Java_com_example_App_greetingTo
     env->ThrowNew(env->FindClass("java/lang/IllegalArgumentException"), "invalid argument");
     return NULL;
   }
-  std::string nameValue(env->GetStringUTFChars(name, false));
+  std::string nameValue(env->GetStringUTFChars(name, JNI_FALSE));
   std::string greeting = std::string("Hello, ");
   greeting += nameValue;
   return env->NewStringUTF(greeting.c_str());
