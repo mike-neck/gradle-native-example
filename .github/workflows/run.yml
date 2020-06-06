@@ -53,7 +53,7 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: compile-info-${{ matrix.os }}
-          path: ./cpp-lib/build/compileDebugCpp
+          path: ./cpp-lib/build/tmp/compileDebugCpp
 
       - name: run application
         run: ./gradlew run
