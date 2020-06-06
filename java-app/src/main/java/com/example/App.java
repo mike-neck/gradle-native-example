@@ -3,7 +3,11 @@
  */
 package com.example;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.Random;
+import java.util.function.Function;
+import java.util.stream.Stream;
 import net.moznion.gimei.Gimei;
 import net.moznion.gimei.NameUnit;
 import net.moznion.gimei.name.Name;
@@ -15,13 +19,27 @@ public class App {
     public static void main(String[] args) {
         loadLibrary();
         App app = new App();
-        new Random()
+        Stream<NameUnit> randomNames = new Random()
                 .longs(100L)
                 .mapToObj(Gimei::generateName)
-                .map(Name::first)
+                .map(Name::first);
+        NameUnit emptyName = new NameUnit(List.of("", "", ""));
+        Stream.concat(Stream.of(emptyName), randomNames)
                 .map(NameUnit::kanji)
-                .map(app::greetingTo)
+                .map(wrap(app::greetingTo))
+                .flatMap(Optional::stream)
                 .forEach(System.out::println);
+    }
+
+    static <T, R> Function<T, Optional<R>> wrap(Function<? super T, ? extends R> function) {
+        return t -> {
+            try {
+                R result = function.apply(t);
+                return Optional.ofNullable(result);
+            } catch (Exception e) {
+                return Optional.empty();
+            }
+        };
     }
 
     static void loadLibrary() {
