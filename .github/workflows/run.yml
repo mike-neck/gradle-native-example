@@ -48,6 +48,13 @@ jobs:
       - name: show artifacts of cpp lib
         run: find cpp-lib/build -type f
 
+      - name: store compile info
+        if: failure()
+        uses: actions/upload-artifact@v1
+        with:
+          name: compile-info-${{ matrix.os }}
+          path: ./cpp-lib/build/compileDebugCpp
+
       - name: run application
         run: ./gradlew run
 
