@@ -1,0 +1,50 @@
+name: running example
+
+on: [push]
+
+jobs:
+  run-all:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macOS-latest
+          - windows-latest
+
+    name: "example @ ${{ matrix.os }}"
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: setup GraalVM
+        uses: DeLaGuardo/setup-graalvm@2.0
+        with:
+          graalvm-version: "20.0.0.java11"
+
+      - name: checkout
+        uses: actions/checkout@v2
+
+      - name: cache
+        uses: actions/cache@v1
+        with:
+          path: ~/.gradle/caches
+          key: gradle-${{ hashFiles('**/*.gradle') }}-${{ hashFiles('**/gradle-wrapper.properties') }}
+          restore-keys: gradle-
+
+      - name: run application
+        run: ./gradlew run
+
+      - name: store config json
+        uses: actions/upload-artifact@v1
+        with:
+          name: native-image-config-json-${{ matrix.os }}
+          path: build/native-image-config
+
+      - name: run test
+        run: ./gradlew test
+
+      - name: store test config json
+        uses: actions/upload-artifact@v1
+        with:
+          name: native-image-config-json-test-${{ matrix.os }}
+          path: build/native-image-test-config
