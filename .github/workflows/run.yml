@@ -42,6 +42,12 @@ jobs:
       - name: show all task
         run: ./gradlew tasks --all
 
+      - name: build cpp lib
+        run: ./gradlew ":cpp-lib:assemble"
+
+      - name: show artifacts of cpp lib
+        run: find cpp-lib/build -type f
+
       - name: run application
         run: ./gradlew run
 
