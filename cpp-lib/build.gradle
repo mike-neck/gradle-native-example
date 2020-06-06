@@ -3,7 +3,7 @@ plugins {
 }
 
 ext {
-    include = "${System.getProperty('java.home')}/include"
+    include = "${System.getProperty('java.home')}/include" as String
 }
 
 library {
