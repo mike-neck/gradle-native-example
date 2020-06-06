@@ -1,5 +1,3 @@
-import static org.apache.tools.ant.taskdefs.condition.Os.*
-
 plugins {
     id 'cpp-library'
 }
@@ -26,20 +24,6 @@ tasks.withType(CppCompile).configureEach {
             ["-I$include", "-I$include/windows"]
         } else {
             ["-I$include"]
-        }
-    }
-}
-
-task showDisplayName {
-    doLast {
-        tasks.withType(CppCompile).each {
-            def chain = it.toolChain.get()
-            println chain.displayName
-            println chain.name
-            println chain.class
-            def platform = it.targetPlatform.get()
-            println "OS: ${platform.operatingSystem}"
-            println "Arch: ${platform.architecture}"
         }
     }
 }
