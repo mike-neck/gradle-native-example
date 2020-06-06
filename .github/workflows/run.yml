@@ -21,6 +21,12 @@ jobs:
         with:
           graalvm-version: "20.0.0.java11"
 
+      - name: debug graalVM
+        run: |
+          java --version
+          echo "$JAVA_HOME"
+          ls "$JAVA_HOME/lib" | grep agent
+
       - name: checkout
         uses: actions/checkout@v2
 
