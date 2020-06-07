@@ -29,6 +29,11 @@ public class App {
                 .map(wrap(app::greetingTo))
                 .flatMap(Optional::stream)
                 .forEach(System.out::println);
+        try {
+            System.out.println(app.greetingTo(null));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     static <T, R> Function<T, Optional<R>> wrap(Function<? super T, ? extends R> function) {
