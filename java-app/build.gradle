@@ -15,10 +15,7 @@ dependencies {
 
 application {
     mainClass = 'com.example.App'
-    applicationDefaultJvmArgs = [
-            "-Djava.library.path=$buildDir/cpp-lib/",
-            "-agentlib:native-image-agent=config-output-dir=$buildDir/native-image-config"
-    ]
+    applicationDefaultJvmArgs = ['-Djava.library.path=APP_HOME/lib']
 }
 
 class PrepareExecution extends DefaultTask {
@@ -47,6 +44,54 @@ task copyLib(type: Copy) {
 }
 
 run.dependsOn 'copyLib', 'prepareExecution'
+run.jvmArgs(
+        "-Djava.library.path=$buildDir/cpp-lib",
+        "-agentlib:native-image-agent=config-output-dir=$buildDir/native-image-config")
+distributions {
+    main {
+        contents {
+            from(copyLib) {
+                into 'lib'
+            }
+        }
+    }
+}
+
+task modifyScript(dependsOn: 'startScripts') {
+    def destinationDir = file("$buildDir/mod-scripts")
+    outputs.dir(destinationDir)
+    doLast {
+        if (!destinationDir.exists()) destinationDir.mkdirs()
+        tasks.findByName('startScripts').outputs.files.collect { artifact ->
+            if (artifact.isFile()) [artifact]
+            else artifact.listFiles().toList()
+        }.flatten().each { scriptFile ->
+            String fileName = scriptFile.name
+            def w = new StringWriter()
+            scriptFile.text.eachLine { line ->
+                if (line.contains('DEFAULT_JVM_OPTS') && line.contains('java.library.path')) {
+                    if (fileName.endsWith('bat')) {
+                        w << line.replace('APP_HOME', '%APP_HOME%')
+                    } else {
+                        w << line.replace('APP_HOME', '$APP_HOME')
+                    }
+                } else {
+                    w << line
+                }
+                w << '\n'
+            }
+            destinationDir.toPath().resolve(fileName).write("$w", 'UTF-8')
+        }
+    }
+}
+
+task overrideScripts(dependsOn: 'modifyScript', type: Copy) {
+    from modifyScript
+    into startScripts.outputDir
+}
+
+distTar.dependsOn overrideScripts
+distZip.dependsOn overrideScripts
 
 task testPrepareExecution(type: PrepareExecution) {
     targetDirectory.set(project.file("$buildDir/native-image-test-config"))
