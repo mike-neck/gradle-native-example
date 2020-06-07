@@ -21,7 +21,7 @@ tasks.withType(CppCompile).configureEach {
         } else if (os.isLinux()) {
             ["-I$include", "-I$include/linux"]
         } else if (os.isWindows()) {
-            ["-I$include", "-I$include/windows"]
+            ["/I$include", "/I$include${File.separator}windows"]
         } else {
             ["-I$include"]
         }
