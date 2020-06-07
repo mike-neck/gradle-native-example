@@ -36,6 +36,9 @@ jobs:
       - name: run application
         run: ./gradlew run
 
+      - name: show cpp artifacts
+        run: find cpp-lib/build/lib -type f
+
       - name: store config json
         uses: actions/upload-artifact@v1
         with:
