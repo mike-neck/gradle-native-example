@@ -101,7 +101,7 @@ test {
     dependsOn 'copyLib'
     useJUnitPlatform()
     jvmArgs(
-            "-Djava.library.path=$buildDir/cpp-lib/",
+            "-Djava.library.path=${cppLib.buildDir}/lib/main/release",
             "-agentlib:native-image-agent=config-output-dir=$buildDir/native-image-test-config"
     )
 }
