@@ -36,8 +36,8 @@ task prepareExecution(type: PrepareExecution) {
     targetDirectory.set(file("$buildDir/native-image-config"))
 }
 
+def cppLib = project(':cpp-lib')
 task copyLib(type: Copy) {
-    def cppLib = project(':cpp-lib')
     def linkTask = cppLib.tasks.withType(LinkSharedLibrary).findByName('linkRelease')
     from linkTask
     into "$buildDir/cpp-lib"
@@ -45,7 +45,7 @@ task copyLib(type: Copy) {
 
 run.dependsOn 'copyLib', 'prepareExecution'
 run.jvmArgs(
-        "-Djava.library.path=$buildDir/cpp-lib",
+        "-Djava.library.path=${cppLib.buildDir}/lib/main/release",
         "-agentlib:native-image-agent=config-output-dir=$buildDir/native-image-config")
 distributions {
     main {
