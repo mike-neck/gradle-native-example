@@ -16,6 +16,8 @@ public class App {
 
     native String greetingTo(String name);
 
+    native List<String> repeat(int times, String target);
+
     public static void main(String[] args) {
         loadLibrary();
         App app = new App();
@@ -34,6 +36,10 @@ public class App {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        List<String> addresses = app.repeat(3, Gimei.generateAddress().kanji());
+        addresses.stream()
+                .map(app::greetingTo)
+                .forEach(System.out::println);
     }
 
     static <T, R> Function<T, Optional<R>> wrap(Function<? super T, ? extends R> function) {
